@@ -4,8 +4,8 @@
 #### 1. The number of ways to put n identical objects into  k  labeled boxes is :- 
 
 ```sh
-Empty Box Allowed -> (x1 + x2 + ... xk = n) where xi>=0     Ans = nCr(n+k-1,n)
-Empty Box Not Allowed -> (x1 + x2 ... kx = n) where xi>=1   Ans = nCr(n-1,k-1)
+Empty Box Allowed -> (x1+x2+...xk=n) where xi>=0      Ans = nCr(n+k-1,n)
+Empty Box Not Allowed -> (x1+x2...kx=n) where xi>=1   Ans = nCr(n-1,k-1)
 ```
 
 #### 2. Lower Bound
