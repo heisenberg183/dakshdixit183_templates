@@ -98,82 +98,64 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+//Source -> CP Algos
+//Tested on -> CSES Round Trip 2
+
 int n,m;
 vector<vector<int>> adj;
-vector<int> vis;
+vector<bool> vis;
+vector<int> par;
+int cycle_start, cycle_end;
 
-vector<int> topoDFS(){
-    vector<int> ans;
-    function<void(int)> dfs = [&](int v){
-        vis[v]=1;
-        for(auto u : adj[v]){
-            if(!vis[u]){
-                dfs(u);
-            }
+bool dfs(int v, int p) { // passing vertex and its parent vertex
+    vis[v] = true;
+    for (int u : adj[v]) {
+        if(u == p) continue; // skipping edge to parent vertex
+        if (vis[u]) {
+            cycle_end = v;
+            cycle_start = u;
+            return true;
         }
-        ans.pb(v);
-    };
-    for(int i=1;i<=n;i++){
-        if(!vis[i]){
-            dfs(i);
-        }
+        par[u] = v;
+        if (dfs(u, par[u]))
+            return true;
     }
-    reverse(all(ans));
-    return ans;
-}
-
-vector<int> topoBFS(){
-
-    vi indegree(n+1);
-    for(int i=1;i<=n;i++){
-        for(auto it : adj[i]){
-            indegree[it]++;
-        }
-    }
-    //We can also use Kahn's algorithm to extract the lexicographically minimum topological sort by breaking ties lexographically.
-    //Although the above code does not do this, one can simply replace the queue with a priority_queue to implement this extension.
-    queue<int> q;
-    for(int i=1;i<=n;i++){
-        if(indegree[i]==0){
-            q.push(i);
-        }
-    }
-
-    vector<int> ans;
-    int count=0;
-    while(!q.empty()){
-        auto v = q.front();
-        q.pop();
-        ans.pb(v);
-        count++;
-        for(auto it : adj[v]){
-            indegree[it]--;
-            if(indegree[it]==0){
-                q.push(it);
-            }
-        }
-    }
-    if(count==n){
-        return ans;
-    }
-    return {};
+    return false;
 }
 
 void solve(){
     cin>>n>>m;
     adj.clear();adj.resize(n+1);
-    vis.clear();vis.resize(n+1);
     for(int i=0;i<m;i++){
         int a,b;
         cin>>a>>b;
         adj[a].pb(b);
+        adj[b].pb(a);
     }
-    vi ans = topoBFS();
-    if(ans.size()==0){
-        print("IMPOSSIBLE");
-        return;
+    par.clear();par.resize(n+1,-1);
+    vis.clear();vis.resize(n+1,false);
+    cycle_start=-1;
+    for(int i=1;cycle_start==-1 && i<=n;i++){
+        if(!vis[i]){
+            dfs(i,-1);
+        }
     }
-    ao(ans,n);
+    if (cycle_start == -1) {
+        cout << "IMPOSSIBLE" << endl;
+    } else {
+        vector<int> cycle;
+        cycle.push_back(cycle_start);
+        for (int v = cycle_end; v != cycle_start; v = par[v])
+            cycle.push_back(v);
+        cycle.push_back(cycle_start);
+
+        cout <<cycle.size()<<endl;;
+        for (int v : cycle)
+            cout << v << " ";
+        cout << endl;
+    }
+
+    
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/

@@ -98,19 +98,40 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-//Source -> USACO TopoSort
+//Source -> CP Algos
+//Tested on -> CSES Round Trip 2
 
-vector<vi> adj;
-vi vis,on_stack;
-vi ans;
+int n,m;
+vector<vector<int>> adj;
+vector<char> color;
+vector<int> parent;
+int cycle_start, cycle_end;
+
+bool dfs(int v) {
+    color[v] = 1;
+    for (int u : adj[v]) {
+        if (color[u] == 0) {
+            parent[u] = v;
+            if (dfs(u))
+                return true;
+        } else if (color[u] == 1) {
+            cycle_end = v;
+            cycle_start = u;
+            return true;
+        }
+    }
+    color[v] = 2;
+    return false;
+}
+
 
 void solve(){
     int n,m;
     cin>>n>>m;
-    vis.clear();vis.resize(n+1);
+    color.clear();color.resize(n+1,0);
     adj.clear();adj.resize(n+1);
-    ans.clear();
-    on_stack.clear();on_stack.resize(n+1);
+    parent.clear();parent.resize(n+1,-1);
+    cycle_start=-1;
 
     for(int i=0;i<m;i++){
         int a,b;
@@ -118,54 +139,26 @@ void solve(){
         adj[a].pb(b);
     }
 
-    function<bool(int)> dfs = [&](int v){
-        vis[v]=on_stack[v]=1;
-        for(auto u : adj[v]){
-            if(on_stack[u]){
-                ans.push_back(v);   //start cycle
-                on_stack[u]=on_stack[v]=0;
-                return true;
-            }
-            else if(!vis[u]){
-                if(dfs(u)){
-                    if(on_stack[v]){
-                        ans.push_back(v);   //Continue Cycle
-                        on_stack[v]=0;
-                        return true;
-                    }
-                    else{
-                        ans.push_back(v);   //found u again
-                        return false;
-                    }
-                }
-                if(!ans.empty()){   //Already finsished a cycle
-                    return false;
-                }
-            }
-        }
-        on_stack[v]=0;
-        return false;
-    };
-
-    for(int i=1;ans.empty() && i<=n;i++){
-        if(!vis[i]){            
+    for(int i=1;cycle_start==-1 && i<=n;i++){
+        if(color[i]==0){            
             dfs(i);
         }
     }
-
-    if(ans.empty()){
-        print("IMPOSSIBLE");
-    }
-    else{
-        cout<<ans.size()<<endl;
-        reverse(all(ans));
-        for(auto it : ans){
-            cout<<it<<" ";
+    if (cycle_start == -1) {
+        cout << "IMPOSSIBLE" << endl;
+    } else {
+        vector<int> cycle;
+        cycle.push_back(cycle_start);
+        for (int v = cycle_end; v != cycle_start; v = parent[v])
+            cycle.push_back(v);
+        cycle.push_back(cycle_start);
+        reverse(cycle.begin(), cycle.end());
+        cout <<cycle.size()<<endl;;
+        for (int v : cycle){
+            cout<<v<<" ";
         }
-        cout<<endl;
+        cout << endl;
     }
-    
-
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
