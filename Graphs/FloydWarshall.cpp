@@ -38,7 +38,6 @@ const int mod = 1000000007;
 #define turn_on_bit(bit_mask, x) (bit_mask |= (1ULL << (x)))
 #define turn_off_bit(bit_mask, x) (bit_mask &= (~( 1ULL << (x))))
 #define smallest_on_bit(bit_mask) (__builtin_ctzll(int)((bit_mask) & (~(bit_mask))))
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};
 typedef unsigned long long ull;
 typedef long double lld;
 typedef pair<int,int> pi;
@@ -99,57 +98,91 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-// TC -> nlogn + mlogn 
-// Parent is used to retrace shortest path from a node
+int n,m,q;
+vector<vpi> adj;
+vector<vi> dist;
+vector<vi> par;
 
-int n,m;
-vector<vector<pi>> adj;
-vector<int> dist;
-vector<int> parent;
 
-void solve(){
-    cin>>n>>m;
-    adj.clear();adj.resize(n+1);
-    dist.clear();dist.resize(n+1,inf);
-    parent.clear();parent.resize(n+1,-1);
-    
-    //Take Input
-
-    int s = 1;
-    dist[s] = 0;
-	priority_queue <pi, vector<pi>,greater<pi>> q;
-	q.push({0, s});
-	while (!q.empty()) {
-        auto [d_v,v] = q.top();
-		q.pop();
-		if (d_v != dist[v]){
-            continue;
-        }
-		for (auto edge : adj[v]) {
-			if (dist[v] + edge.ss < dist[edge.ff]) {
-				dist[edge.ff] = dist[v] + edge.ss;
-				parent[edge.ff] = v;
-				q.push({dist[edge.ff], edge.ff});
+void FloydWarshal(){
+    for (int i = 1; i <=n; i++) {
+		for (int j = 1; j <= n; j++) {
+			dist[i][j] = inf;
+		}
+		dist[i][i] = 0;
+	}
+	for (int i = 1; i <= n; i++) {
+		for (auto j : adj[i]) {
+			dist[i][j.ff] = min(dist[i][j.ff], j.ss);
+		}
+	}
+	for (int k = 1; k <= n; k++) {
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++) {
+				if (dist[i][k] < inf && dist[k][j] < inf){ // for updating only when there is a path
+                    if(dist[i][k]+dist[k][j]<dist[i][j]){
+                        par[i][j] = par[j][i] = k;
+                        dist[i][j] = dist[i][k]+dist[k][j];
+                    }
+                }
 			}
 		}
 	}
-    if(dist[n]!=inf){
-        vi path;
-        int u = n;
-        path.pb(n);
-        while(u!=1){
-            u = parent[u];
-            path.pb(u);
+    // for(int i=1;i<=n;i++){
+    //     for(int j=1;j<=n;j++){
+    //         if(dist[i][j]==inf){
+    //             dist[i][j]=-1;
+    //         }
+    //     }
+    // }
+    for(int k=1;k<=n;k++){
+        if(dist[k][k]<0){
+            for(int i=1;i<=n;i++){
+                for(int j=1;j<=n;j++){
+                    if(dist[i][k]!=inf && dist[k][j]!=inf){
+                        dist[i][j] = (int)-inf;  
+                    }
+                }
+            }
         }
-        reverse(all(path));
-        for(auto it : path){
-            cout<<it<<" ";
-        }
-        cout<<endl;
     }
-    else{
-        cout<<-1<<endl;
+}
+
+//Not Tested
+vi findPath(int a,int b){
+    if(par[a][b]==-1){
+        return {a,b};
     }
+    vi left = findPath(a,par[a][b]);
+    vi right = findPath(par[a][b],b);
+    left.insert(left.end(),right.begin()+1,right.end());
+    return left;
+}
+
+void solve(){
+    cin>>n>>m>>q;
+    adj.clear();adj.resize(n+1);
+    dist.clear();dist.resize(n+1,vi(n+1));
+    par.clear();par.resize(n+1,vi(n+1,-1));
+    for(int i=0;i<m;i++){
+        int a,b,c;
+        cin>>a>>b>>c;
+        adj[a].pb({b,c});
+        adj[b].pb({a,c});
+    }
+    FloydWarshal();
+    debug(par);
+    while(q--){
+        int a,b;
+        cin>>a>>b;
+        cout<<dist[a][b]<<endl;
+        // if(dist[a][b]!=-1){
+        //     vi ans = findPath(a,b);
+        //     debug(ans);
+        // }
+    }
+
+
 
 }
 
@@ -157,6 +190,10 @@ void solve(){
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
     // cin>>t;
     for(int i=1;i<=t;i++){

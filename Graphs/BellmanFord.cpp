@@ -12,7 +12,8 @@ using namespace __gnu_pbds;
 #define int long long
 const int mod = 1000000007;
 // const int mod = 998244353;
-#define inf 1000000000000000005
+// #define inf 1000000000000000005
+#define inf 1000000005
 #define endl "\n"
 #define pb push_back
 #define ppb pop_back
@@ -38,7 +39,6 @@ const int mod = 1000000007;
 #define turn_on_bit(bit_mask, x) (bit_mask |= (1ULL << (x)))
 #define turn_off_bit(bit_mask, x) (bit_mask &= (~( 1ULL << (x))))
 #define smallest_on_bit(bit_mask) (__builtin_ctzll(int)((bit_mask) & (~(bit_mask))))
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};
 typedef unsigned long long ull;
 typedef long double lld;
 typedef pair<int,int> pi;
@@ -99,57 +99,72 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-// TC -> nlogn + mlogn 
-// Parent is used to retrace shortest path from a node
+struct Edge {
+    int a, b, c;
+};
 
 int n,m;
-vector<vector<pi>> adj;
+vector<Edge> edges;
+vector<vpi> adj;
 vector<int> dist;
-vector<int> parent;
+
 
 void solve(){
     cin>>n>>m;
     adj.clear();adj.resize(n+1);
     dist.clear();dist.resize(n+1,inf);
-    parent.clear();parent.resize(n+1,-1);
-    
-    //Take Input
-
-    int s = 1;
-    dist[s] = 0;
-	priority_queue <pi, vector<pi>,greater<pi>> q;
-	q.push({0, s});
-	while (!q.empty()) {
-        auto [d_v,v] = q.top();
-		q.pop();
-		if (d_v != dist[v]){
-            continue;
+    for(int i=0;i<m;i++){
+        int a,b,c;
+        cin>>a>>b>>c;
+        adj[a].pb({b,c});
+        edges.pb({a,b,c});
+    }
+    dist[1]=0;
+    vector<int> p(n, -1);
+    int x;
+    for (int i = 0; i < n; ++i) {
+        x = -1;
+        for (Edge e : edges){
+            if (dist[e.a] < inf){
+                if (dist[e.b] > dist[e.a] + e.c) {
+                    dist[e.b] = max((int)-inf, dist[e.a] + e.c);
+                    p[e.b] = e.a;
+                    x = e.b;
+                }
+            }
         }
-		for (auto edge : adj[v]) {
-			if (dist[v] + edge.ss < dist[edge.ff]) {
-				dist[edge.ff] = dist[v] + edge.ss;
-				parent[edge.ff] = v;
-				q.push({dist[edge.ff], edge.ff});
-			}
-		}
-	}
-    if(dist[n]!=inf){
-        vi path;
-        int u = n;
-        path.pb(n);
-        while(u!=1){
-            u = parent[u];
-            path.pb(u);
-        }
-        reverse(all(path));
-        for(auto it : path){
-            cout<<it<<" ";
-        }
-        cout<<endl;
+    }
+    aout(dist,1,n);
+    if(x==-1){
+        //No Cycle
+        //Path from 1 to t;
+        int t=3;
+        vector<int> path;
+        for (int cur = t; cur != -1; cur = p[cur])
+            path.push_back(cur);
+        reverse(path.begin(), path.end());
+        // cout << "Path from " << 1 << " to " << t << ": ";
+        for (int u : path)
+            cout << u << ' ';
     }
     else{
-        cout<<-1<<endl;
+        int y = x;
+        for (int i = 0; i < n; ++i){
+            y = p[y];
+        }
+        vector<int> path;
+        for (int cur = y;; cur = p[cur]) {
+            path.push_back(cur);
+            if (cur == y && path.size() > 1){
+                break;
+            }
+        }
+        reverse(path.begin(), path.end());
+        for (int u : path)
+            cout << u << ' ';
+        cout<<endl;
     }
+
 
 }
 
@@ -157,6 +172,10 @@ void solve(){
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
     // cin>>t;
     for(int i=1;i<=t;i++){
