@@ -38,7 +38,6 @@ const int mod = 1000000007;
 #define turn_on_bit(bit_mask, x) (bit_mask |= (1ULL << (x)))
 #define turn_off_bit(bit_mask, x) (bit_mask &= (~( 1ULL << (x))))
 #define smallest_on_bit(bit_mask) (__builtin_ctzll(int)((bit_mask) & (~(bit_mask))))
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};
 typedef unsigned long long ull;
 typedef long double lld;
 typedef pair<int,int> pi;
@@ -99,77 +98,118 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef ONLINE_JUDGE
-const int N = 1e3+5;
-#else
-const int N = 1e5+5;
-#endif
 
-class DisjointSets {
-  private:
-	vector<int> parents;
-	vector<int> sizes;
+//Code From CF Blog 
+//Approach From Willian Fiset Graphs Playslist
+//Tested on CSES Problemset :- Tree_Isomorphism_2
 
-  public:
-	DisjointSets(int size) : parents(size), sizes(size, 1) {
-		for (int i = 0; i < size; i++) { parents[i] = i; }
-	}
 
-	/** @return the "representative" node in x's component */
-	int find(int x) {
-		return parents[x] == x ? x : (parents[x] = find(parents[x]));
-	}
-
-	/** @return whether the merge changed connectivity */
-	bool unite(int x, int y) {
-		int x_root = find(x);
-		int y_root = find(y);
-		if (x_root == y_root) { return false; }
-
-		if (sizes[x_root] < sizes[y_root]) { swap(x_root, y_root); }
-		sizes[x_root] += sizes[y_root];
-		parents[y_root] = x_root;
-		return true;
-	}
-
-    int size(int u){
-        return sizes[find(u)];
+class Tree {
+public:
+    vector<vector<int>> adj;
+    vector<int> centroid;
+    vector<int> sub;
+    vector<int> id;
+    vector<int64_t> powr;
+ 
+    void dfs(int curNode, int prevNode) {
+        sub[curNode] = 1;
+        bool is_centroid = true;
+        vector<pair<int, int>> nodes;
+        for (int v: adj[curNode]) {
+            if (v != prevNode) {
+                dfs(v, curNode);
+                sub[curNode] += sub[v];
+                if (sub[v] > (int) adj.size() / 2) {
+                    is_centroid = false;
+                }
+                nodes.emplace_back(id[v], v);
+            }
+        }
+        sort(nodes.begin(), nodes.end());
+        id[curNode] = 1;
+        for (auto& p: nodes) {
+            id[curNode] = ((powr[sub[p.second] + 1] * id[curNode]) % mod + id[p.second]) % mod;
+        }
+        id[curNode] *= 2;
+        id[curNode] %= mod;
+        if ((int) adj.size() - sub[curNode] > (int) adj.size() / 2) {
+            is_centroid = false;
+        }
+        if (is_centroid) {
+            centroid.push_back(curNode);
+        }
     }
-
-	/** @return whether x and y are in the same connected component */
-	bool connected(int x, int y) { return find(x) == find(y); }
+ 
+    vector<int> Centroid() {
+        dfs(0, -1);
+        return centroid;
+    }
+ 
+    bool isIsomorphic(int root1, Tree t2, int root2) {
+        dfs(root1, root1);
+        t2.dfs(root2, root2);
+        sort(sub.begin(), sub.end());
+        sort(t2.sub.begin(), t2.sub.end());
+        return (id[root1] == t2.id[root2]);
+    }
+ 
+    void add_edge(int u, int v) {
+        adj[u].push_back(v), adj[v].push_back(u);
+    }
+ 
+    Tree(int n) {
+        adj.resize(n);
+        sub.resize(n);
+        id.resize(n);
+        powr.resize(n + 1);
+        powr[0] = 1;
+        for (int i = 1; i <= n; i++) {
+            powr[i] = 2 * powr[i - 1];
+            powr[i] %= mod;
+        }
+    }
 };
 
-
 void solve(){
-    int n,m;
-    cin>>n>>m;
-    DisjointSets dsu(n+1);
-    while(m--){
-        string type;
-        cin>>type;
-        int u,v;
-        cin>>u>>v;
-        if(type=="union"){
-            dsu.unite(u,v);
-        }
-        else{
-            if(dsu.connected(u,v)){
+    int n;
+    cin>>n;
+    Tree tree1(n),tree2(n);
+    for(int i=1;i<n;i++){
+        int a,b;
+        cin>>a>>b;
+        a--,b--;
+        tree1.add_edge(a,b);
+    }
+     for(int i=1;i<n;i++){
+        int a,b;
+        cin>>a>>b;
+        a--,b--;
+        tree2.add_edge(a,b);
+    }
+    vi centers1 = tree1.Centroid();
+    vi centers2 = tree2.Centroid();
+    for(auto c1 : centers1){
+        for(auto c2 : centers2){
+            if(tree1.isIsomorphic(c1,tree2,c2)){
                 yes;
-            }
-            else{
-                no;
+                return;
             }
         }
     }
+    no;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
-    // cin>>t;
+    cin>>t;
     for(int i=1;i<=t;i++){
         //google(i);
         solve();

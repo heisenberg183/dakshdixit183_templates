@@ -38,7 +38,6 @@ const int mod = 1000000007;
 #define turn_on_bit(bit_mask, x) (bit_mask |= (1ULL << (x)))
 #define turn_off_bit(bit_mask, x) (bit_mask &= (~( 1ULL << (x))))
 #define smallest_on_bit(bit_mask) (__builtin_ctzll(int)((bit_mask) & (~(bit_mask))))
-const int dx[4]{1, 0, -1, 0}, dy[4]{0, 1, 0, -1};
 typedef unsigned long long ull;
 typedef long double lld;
 typedef pair<int,int> pi;
@@ -99,11 +98,12 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef ONLINE_JUDGE
-const int N = 1e3+5;
-#else
-const int N = 1e5+5;
-#endif
+struct Edge {
+    int a,b,c;
+    bool operator<(Edge const& other) {
+        return c < other.c;
+    }
+};
 
 class DisjointSets {
   private:
@@ -140,34 +140,37 @@ class DisjointSets {
 	bool connected(int x, int y) { return find(x) == find(y); }
 };
 
-
 void solve(){
     int n,m;
     cin>>n>>m;
+    vector<Edge> edges;
+    for(int i=0;i<m;i++){
+        int a,b,c;
+        cin>>a>>b>>c;
+        edges.pb({a,b,c});
+    }
+    sort(all(edges));
     DisjointSets dsu(n+1);
-    while(m--){
-        string type;
-        cin>>type;
-        int u,v;
-        cin>>u>>v;
-        if(type=="union"){
-            dsu.unite(u,v);
-        }
-        else{
-            if(dsu.connected(u,v)){
-                yes;
-            }
-            else{
-                no;
-            }
+    int ans = 0;
+    int cnt = 0;
+    for(int i=0;i<m;i++){
+        auto [a,b,c] = edges[i];
+        if(!dsu.connected(a,b)){
+            ans += c;
+            dsu.unite(a,b);
         }
     }
+    cout<<ans<<endl;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
     // cin>>t;
     for(int i=1;i<=t;i++){

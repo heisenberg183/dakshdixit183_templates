@@ -99,6 +99,8 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+//On dense graph where n=m^2 we can achieve O(n^2 + m) [Refer CP Algo Under Dijsktra]
+
 // TC -> nlogn + mlogn 
 // Parent is used to retrace shortest path from a node
 
@@ -125,11 +127,11 @@ void solve(){
 		if (d_v != dist[v]){
             continue;
         }
-		for (auto edge : adj[v]) {
-			if (dist[v] + edge.ss < dist[edge.ff]) {
-				dist[edge.ff] = dist[v] + edge.ss;
-				parent[edge.ff] = v;
-				q.push({dist[edge.ff], edge.ff});
+		for (auto [u,wt] : adj[v]) {
+			if (dist[v] + wt < dist[u]) {
+				dist[u] = dist[v] + wt;
+				parent[u] = v;
+				q.push({dist[u], u});
 			}
 		}
 	}
