@@ -103,7 +103,7 @@ int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rn
 // Tested on Company Queries 1 CSES
 // 1 based Indexing 
 
-const int LOG = 15;
+const int LOG = 20;
 vector<vi> adj;
 vector<vi> up;
  
