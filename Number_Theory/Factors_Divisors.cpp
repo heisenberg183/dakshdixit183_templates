@@ -100,6 +100,9 @@ const int N = 1e3+5;
 const int N = 1e5+5;
 #endif
 
+//If we ever need to calculate Seive such that it finds all the factors of a number(1<=n<=1e9)
+//vi primes = sieve(32000)
+
 vector<int> divisors[N];
 
 void init(){
@@ -111,9 +114,9 @@ void init(){
 }
 
 map<int,int> factors(int x){
-    vector<int> primes = sieve(x);
     // vector<int> result;
     map<int,int> mpp;
+    //primes = sieve(32000);
     for(auto p:primes){
         if(p*p > x){
             break;
