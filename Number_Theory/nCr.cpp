@@ -114,6 +114,17 @@ void computeFact(){
     }
 }
 
+int nCr(int n, int r){
+    if(n==r || n-r==n){
+        return 1;
+    }
+    if(r>n){
+        return 0ll;
+    }
+    int res = mod_mul(fact[n],invFact[n-r]);
+    res = mod_mul(res,invFact[r]);
+    return res;
+}
 int nCrIterative(int n, int r){
     if(n==r || n-r==n) return 1;
     if(r>n) return 0ll;
@@ -129,17 +140,6 @@ int nCrIterative(int n, int r){
 }
 
 
-int nCr(int n, int r){
-    if(n==r || n-r==n){
-        return 1;
-    }
-    if(r>n){
-        return 0ll;
-    }
-    int res = mod_mul(fact[n],invFact[n-r]);
-    res = mod_mul(res,invFact[r]);
-    return res;
-}
 
 int nPr(int n, int r){
     int res = mod_mul(fact[n],invFact[n-r]);
