@@ -99,6 +99,9 @@ int ceil_rem(int a, int b) {return a%b==0 ? b : a%b;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+// Common Facts:- 
+// 1. nCk = (n-1)C(k-1) + (n-1)C(k);
+// 2. No of ways to reach down in a matrix from n*m size = (n-1+m-1)C(n-1)
 
 const int N = 2e6+5;
 vi fact(N);
