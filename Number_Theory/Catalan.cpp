@@ -3,6 +3,9 @@
 #include<bits/stdc++.h>
 #include<ext/pb_ds/assoc_container.hpp>
 #include<ext/pb_ds/tree_policy.hpp>
+#include<iostream>
+#include<istream>
+#include<fstream>
  
 using namespace std;
 using namespace chrono;
@@ -10,21 +13,24 @@ using namespace __gnu_pbds;
 
 #define fast ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
 #define int long long
-#define mod0 1000000007
-#define mod1 998244353
-#define inf 1e18
+const int mod = 1000000007;
+// const int mod = 998244353;
+#define inf 1000000000000000005
 #define endl "\n"
 #define pb push_back
 #define ppb pop_back
-#define mp make_pair
+#define mkp make_pair
 #define ff first
 #define ss second
+#define yes cout << "YES" <<endl
+#define no cout << "NO" <<endl
 #define PI 3.141592653589793238462
 #define set_bits(x) __builtin_popcountll(x)
-#define sz(x) ((int)(x).size())
 #define all(x) (x).begin(), (x).end()
+#define rsz(arr,n) arr.clear();arr.resize(n)
 #define print(x) cout<<x<<"\n"
 #define fr(i,a,b) for(int i = a; i < b; i++)
+#define fo(i,a,b) for(int i=a;i<=b;i++)
 #define ms(arr, v) memset(arr, v, sizeof(arr))
 #define ai(a, n) for (int ele = 0; ele < n; ele++) cin >> a[ele];
 #define ain(a, lb, rb) for (int ele = lb; ele <= rb; ele++) cin >> a[ele];
@@ -41,9 +47,10 @@ typedef long double lld;
 typedef pair<int,int> pi;
 typedef vector<int> vi;
 typedef vector<pi> vpi;
-typedef tree<pair<int, int>, null_type, less<pair<int, int>>, rb_tree_tag, tree_order_statistics_node_update > pbds; // find_by_order, order_of_key
-typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_set; //greater<int> for descending set, also less_equal<int> which is ascending multiset
- 
+template<class T>
+using pbds = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>; //greater<int> for descending set, also less_equal<int> which is ascending multiset 
+// find_by_order(k)  returns iterator to kth element starting from 0;
+// order_of_key(k) returns count of elements strictly smaller than k;
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
 //DEBUG
 #ifndef ONLINE_JUDGE
@@ -68,8 +75,7 @@ template <class T> void _print(vector <T> v) {cerr << "[ "; for (T i : v) {_prin
 template <class T> void _print(set <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T> void _print(multiset <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T, class V> void _print(map <T, V> v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
-void _print(pbds v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
-void _print(ordered_set v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
+template <class T> void _print(pbds <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -78,53 +84,62 @@ int getIthbit(int n, int i){return ( n & ( 1 << i) ) == 0 ? 0 : 1;}
 void setIthBit(int &n, int i){ n = n | (1 << i);}
 void clearIthBit(int &n, int i){ n = n & ( ~(1 << i));}
 int gcd(int a, int b) {if (b > a) {return gcd(b, a);} if (b == 0) {return a;} return gcd(b, a % b);}
-int expo(int a, int b, int mod) {int res = 1; while (b > 0) {if (b & 1)res = (res * a) % mod; a = (a * a) % mod; b = b >> 1;} return res;}
+int pwr(int a, int b,int m=mod) {a %= m; int res = 1; while (b > 0) {if (b & 1) res = (res * a) % m; a = (a * a) % m; b >>= 1;} return res;}
 void extendgcd(int a, int b, int*v) {if (b == 0) {v[0] = 1; v[1] = 0; v[2] = a; return ;} extendgcd(b, a % b, v); int x = v[1]; v[1] = v[0] - v[1] * (a / b); v[0] = x; return;} //pass an arry of size1 3
-int mminv(int a, int m){int arr[3];extendgcd(a, m, arr); if(arr[2]!=1){return -1;}arr[0] =(arr[0]%m + m)%m ;return arr[0];} //Modulo Inverse Exist only if gcd(a,m)=1;
-int mminvprime(int a, int m){int ans = expo(a, m - 2, m); ans = (ans%m+m)%m; return ans;} //If a,m are Coprime
+int mminv(int a){int arr[3];extendgcd(a, mod, arr); if(arr[2]!=1){return -1;}arr[0] =(arr[0]%mod + mod)%mod ;return arr[0];} //Modulo Inverse Exist only if gcd(a,m)=1;
+int inv(int i,int m=mod) {if (i == 1) return 1; return (m - ((m / i) * inv(m % i)) % m) % m;}
+int mminvprime(int a,int m=mod){int ans = pwr(a, m - 2); ans = (ans%m+m)%m; return ans;} //If a,m are Coprime
 vector<int> sieve(int n) {int*arr = new int[n + 1](); vector<int> vect; for (int i = 2; i <= n; i++)if (arr[i] == 0) {vect.push_back(i); for (int j = 2 * i; j <= n; j += i)arr[j] = 1;} return vect;}
 int phin(int n) {int number = n; if (n % 2 == 0) {number /= 2; while (n % 2 == 0) n /= 2;} for (int i = 3; i <= sqrt(n); i += 2) {if (n % i == 0) {while (n % i == 0)n /= i; number = (number / i * (i - 1));}} if (n > 1)number = (number / n * (n - 1)) ; return number;} //O(sqrt(N))
 bool revsort(int a, int b) {return a > b;}
-int combination(int n, int r, int m, int *fact, int *ifact) {int val1 = fact[n]; int val2 = ifact[n - r]; int val3 = ifact[r]; return (((val1 * val2) % m) * val3) % m;}
 void google(int t) {cout << "Case #" << t << ": ";}
-int mod_add(int a, int b, int m) {a = a % m; b = b % m; return (((a + b) % m) + m) % m;}
-int mod_mul(int a, int b, int m) {a = a % m; b = b % m; return (((a * b) % m) + m) % m;}
-int mod_sub(int a, int b, int m) {a = a % m; b = b % m; return (((a - b) % m) + m) % m;}
-int mod_div(int a, int b, int m) {a = a % m; b = b % m; return (mod_mul(a, mminvprime(b, m), m) + m) % m;}  //only for prime m
+int mod_add(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a + b) % m) + m) % m;}
+int mod_mul(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a * b) % m) + m) % m;}
+int mod_sub(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a - b) % m) + m) % m;}
+int mod_div(int a, int b,int m=mod) {a = a % m; b = b % m; return (mod_mul(a, mminvprime(b)) + m) % m;}  //only for prime m
+int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
+int ceil_rem(int a, int b) {return a%b==0 ? b : a%b;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef ONLINE_JUDGE
-const int N = 1e4+5;
-#else
-const int N = 2e5 + 5;
-#endif
+const int N = 1e6+5;
+vi fact(N),invFact(N),catalan(N);
 
-vi catalan(2e3,0);
-void precomputeCatalan(){
-    catalan[0]=1;
-    fr(i,1,2e3){
-        fr(j,0,i){
-            catalan[i] += mod_mul(catalan[j],catalan[i-j-1],mod0);
-            catalan[i]%=mod0;
-        }
+
+void Catalan(){
+    fact[0] = fact[1] = 1;
+    for(int i=2;i<N;i++){
+        fact[i] = mod_mul(fact[i-1],i);
+    }
+    invFact[N-1] = mminvprime(fact[N-1]);
+    for(int i=N-2;i>=0;i--){
+        invFact[i] = mod_mul(i+1,invFact[i+1]);
+    }
+    catalan[1]=1;
+    for(int i=2;i<N;i++){
+        catalan[i] = mod_mul(mod_mul(4*i-2,inv(i+1)),catalan[i-1]);
     }
 }
 
 
 void solve(){
-    cout<<catalan[1]<<endl;
+    int n;
+    cin>>n;
+    cout<<catalan[n]<<endl;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
     // cin>>t;
-    precomputeCatalan();
-    debug(catalan);
-    while(t--){
+    Catalan();
+    for(int i=1;i<=t;i++){
         solve();
     }
     auto stop1 = high_resolution_clock::now();
@@ -135,4 +150,3 @@ signed main(){
     return 0;
 }
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
