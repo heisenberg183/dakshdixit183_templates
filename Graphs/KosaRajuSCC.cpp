@@ -3,6 +3,9 @@
 #include<bits/stdc++.h>
 #include<ext/pb_ds/assoc_container.hpp>
 #include<ext/pb_ds/tree_policy.hpp>
+#include<iostream>
+#include<istream>
+#include<fstream>
  
 using namespace std;
 using namespace chrono;
@@ -24,6 +27,7 @@ const int mod = 1000000007;
 #define PI 3.141592653589793238462
 #define set_bits(x) __builtin_popcountll(x)
 #define all(x) (x).begin(), (x).end()
+#define rsz(arr,n) arr.clear();arr.resize(n)
 #define print(x) cout<<x<<"\n"
 #define fr(i,a,b) for(int i = a; i < b; i++)
 #define fo(i,a,b) for(int i=a;i<=b;i++)
@@ -44,7 +48,7 @@ typedef pair<int,int> pi;
 typedef vector<int> vi;
 typedef vector<pi> vpi;
 template<class T>
-using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>; //greater<int> for descending set, also less_equal<int> which is ascending multiset 
+using pbds = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>; //greater<int> for descending set, also less_equal<int> which is ascending multiset 
 // find_by_order(k)  returns iterator to kth element starting from 0;
 // order_of_key(k) returns count of elements strictly smaller than k;
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -71,7 +75,7 @@ template <class T> void _print(vector <T> v) {cerr << "[ "; for (T i : v) {_prin
 template <class T> void _print(set <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T> void _print(multiset <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 template <class T, class V> void _print(map <T, V> v) {cerr << "[ "; for (auto i : v) {_print(i); cerr << " ";} cerr << "]";}
-template <class T> void _print(ordered_set <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
+template <class T> void _print(pbds <T> v) {cerr << "[ "; for (T i : v) {_print(i); cerr << " ";} cerr << "]";}
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -80,72 +84,102 @@ int getIthbit(int n, int i){return ( n & ( 1 << i) ) == 0 ? 0 : 1;}
 void setIthBit(int &n, int i){ n = n | (1 << i);}
 void clearIthBit(int &n, int i){ n = n & ( ~(1 << i));}
 int gcd(int a, int b) {if (b > a) {return gcd(b, a);} if (b == 0) {return a;} return gcd(b, a % b);}
-int pwr(int a, int b) {a %= mod; int res = 1; while (b > 0) {if (b & 1) res = (res * a) % mod; a = (a * a) % mod; b >>= 1;} return res;}
+int pwr(int a, int b,int m=mod) {a %= m; int res = 1; while (b > 0) {if (b & 1) res = (res * a) % m; a = (a * a) % m; b >>= 1;} return res;}
 void extendgcd(int a, int b, int*v) {if (b == 0) {v[0] = 1; v[1] = 0; v[2] = a; return ;} extendgcd(b, a % b, v); int x = v[1]; v[1] = v[0] - v[1] * (a / b); v[0] = x; return;} //pass an arry of size1 3
 int mminv(int a){int arr[3];extendgcd(a, mod, arr); if(arr[2]!=1){return -1;}arr[0] =(arr[0]%mod + mod)%mod ;return arr[0];} //Modulo Inverse Exist only if gcd(a,m)=1;
-int inv(int i) {if (i == 1) return 1; return (mod - ((mod / i) * inv(mod % i)) % mod) % mod;}
-int mminvprime(int a){int ans = pwr(a, mod - 2); ans = (ans%mod+mod)%mod; return ans;} //If a,m are Coprime
+int inv(int i,int m=mod) {if (i == 1) return 1; return (m - ((m / i) * inv(m % i)) % m) % m;}
+int mminvprime(int a,int m=mod){int ans = pwr(a, m - 2); ans = (ans%m+m)%m; return ans;} //If a,m are Coprime
 vector<int> sieve(int n) {int*arr = new int[n + 1](); vector<int> vect; for (int i = 2; i <= n; i++)if (arr[i] == 0) {vect.push_back(i); for (int j = 2 * i; j <= n; j += i)arr[j] = 1;} return vect;}
 int phin(int n) {int number = n; if (n % 2 == 0) {number /= 2; while (n % 2 == 0) n /= 2;} for (int i = 3; i <= sqrt(n); i += 2) {if (n % i == 0) {while (n % i == 0)n /= i; number = (number / i * (i - 1));}} if (n > 1)number = (number / n * (n - 1)) ; return number;} //O(sqrt(N))
 bool revsort(int a, int b) {return a > b;}
-pair<int,vector<int>> to_vector(int num){ string num_string = to_string(num); int sz = num_string.size(); vector<int> res(sz); for(int i=0;i<sz;i++){res[i] = num_string[i]-'0';}return mkp(sz,res);}
 void google(int t) {cout << "Case #" << t << ": ";}
-int mod_add(int a, int b) {a = a % mod; b = b % mod; return (((a + b) % mod) + mod) % mod;}
-int mod_mul(int a, int b) {a = a % mod; b = b % mod; return (((a * b) % mod) + mod) % mod;}
-int mod_sub(int a, int b) {a = a % mod; b = b % mod; return (((a - b) % mod) + mod) % mod;}
-int mod_div(int a, int b) {a = a % mod; b = b % mod; return (mod_mul(a, mminvprime(b)) + mod) % mod;}  //only for prime m
+int mod_add(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a + b) % m) + m) % m;}
+int mod_mul(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a * b) % m) + m) % m;}
+int mod_sub(int a, int b,int m=mod) {a = a % m; b = b % m; return (((a - b) % m) + m) % m;}
+int mod_div(int a, int b,int m=mod) {a = a % m; b = b % m; return (mod_mul(a, mminvprime(b)) + m) % m;}  //only for prime m
 int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
+int ceil_rem(int a, int b) {return a%b==0 ? b : a%b;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-int dx[4]={-1, +1, 0, 0};
-int dy[4]={0, 0, +1, -1};
-int dx8[8]={1,1,1,0,-1,-1,-1,0};
-int dy8[8]={-1,0,1,1,1,0,-1,-1};
+//CSES -> Planets and Kingdoms
+
+
 
 int n,m;
-vector<vector<int>> arr;
-vector<vector<int>> vis;
-vector<vector<int>> dist;
-vector<vector<int>> ways;
+vector<vector<int>> adj,adjR;
 
-
-bool isValid(int x,int y){  //This is 1 based indexing
-    return x>=1 && y>=1 && x<=n && y<=m;
+void topoSort(int start, vector<int>& topo, vector<bool>& visited) {
+	visited[start] = true;
+	for (auto i : adj[start]) {
+		if (!visited[i]) {
+			topoSort(i, topo, visited);
+		}
+	}
+	topo.pb(start);
 }
 
-//Use Iterative DFS if n*m >= 4000*4000
-void dfs(int row,int col){
-    vis[row][col]=1;
-    for(int i=0;i<4;i++){
-        int nrow=row+dx[i];
-        int ncol=col+dy[i];
-        if(isValid(nrow,ncol) && arr[nrow][ncol] && !vis[nrow][ncol]){
-            dfs(nrow,ncol);
+void getComponent(int start, vector<int>& currComponent, vector<bool>& visited) {
+	currComponent.pb(start);
+	visited[start] = true;
+	for (auto i : adjR[start]) {
+		if (!visited[i]) {
+			getComponent(i, currComponent, visited);
+		}
+	}
+}
+vector<vector<int>> getSCC() {
+	vector<bool> visited(n);
+	vector<int> topo;
+	for (int i = 0; i < n; i++) {
+		if (!visited[i]) {
+			topoSort(i, topo, visited);
+		}
+	}
+	fill(visited.begin(), visited.end(), false);
+	vector<vector<int>> SCC;
+	for (int i = topo.size() - 1; i >= 0; i--) {		//We Traverse Vec back instead of using Stack
+		if (!visited[topo[i]]) {
+			vector<int> comp;
+			getComponent(topo[i], comp, visited);
+			SCC.pb(comp);
+		}
+	}
+	return SCC;
+}
+void solve() {
+	cin >> n >> m;
+    rsz(adj,n);
+    rsz(adjR,n);
+	for (int i = 0; i < m; i++){
+		int a, b;
+		cin >> a >> b;
+        adj[a-1].push_back(b-1);
+        adjR[b-1].push_back(a-1);
+	}
+	vector<vector<int>> SCC = getSCC();
+    debug(SCC);
+    vector<int> ans(n);
+    for(int i=0;i<SCC.size();i++){
+        for (auto j : SCC[i]){
+            ans[j]=i+1;
         }
     }
-}
-
-void solve(){
-    cin>>n>>m;
-    arr.clear();arr.resize(n+1,vector<int>(m+1,0));
-    vis.clear();vis.resize(n+1,vector<int>(m+1,0));
-    dist.clear();dist.resize(n+1,vector<int>(m+1,1e9));
-    ways.clear();ways.resize(n+1,vector<int>(m+1,0));
+    cout<<SCC.size()<<endl;
+    ao(ans,n);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 signed main(){
     fast;
     auto start1 = high_resolution_clock::now();
-    #ifdef ONLINE_JUDGE
-    freopen("shell.in", "r", stdin);
-    freopen("shell.out", "w", stdout);
-    #endif
+    // #ifndef ONLINE_JUDGE
+    // freopen("shell.in", "r", stdin);
+    // freopen("shell.out", "w", stdout);
+    // #endif
     int t=1;
-    cin>>t;
+    // cin>>t;
     for(int i=1;i<=t;i++){
-        //google(i);
         solve();
     }
     auto stop1 = high_resolution_clock::now();
