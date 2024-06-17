@@ -107,6 +107,7 @@ struct Edge{
     int src, dest;
     int val;
     int residualIndex;
+    bool original;
 };
 struct Flow{
     int n;
@@ -126,8 +127,8 @@ struct Flow{
         edges.resize(n);
         for(int i = 0; i < n; i++){
             for(auto j : edges1[i]){
-                Edge e1 = {edgesT.size(), i, j.ff, j.ss, edgesT.size() + 1};
-                Edge e2 = {edgesT.size() + 1, j.ff, i, 0, edgesT.size()};
+                Edge e1 = {edgesT.size(), i, j.ff, j.ss, edgesT.size() + 1,true};
+                Edge e2 = {edgesT.size() + 1, j.ff, i, 0, edgesT.size(),false};
                 edgesT.pb(e1);
                 edgesT.pb(e2);
                 edges[i].pb(e1.index);
@@ -173,8 +174,17 @@ struct Flow{
         }
         return finalValue;
     }
+    void dfs(int root){
+        visited[root] = 1;
+        for(auto i : edges[root]){
+            Edge e1 = edgesT[i];
+            if(!visited[e1.dest] && e1.val>0){
+                dfs(e1.dest);
+            }
+        }
+    }
     void EdmondsKarp(){
-        while(true){
+        while(1){
             int f = bfs(src);
             if(f == 0)
                 return;
@@ -189,7 +199,28 @@ struct Flow{
         }
         return flow;
     }
+    set<pi> stCut(){
+        if(!solved){
+            solved = true;
+            EdmondsKarp();
+        }
+        fill(all(visited),0);
+        dfs(src);
+        set<pi> ans;
+        for(int i=0;i<n;i++){
+            if(visited[i]){
+                for(auto it : edges[i]){
+                    Edge e1 = edgesT[it];
+                    if(!visited[e1.dest] && e1.original){
+                        ans.insert({i,e1.dest});
+                    }
+                }
+            }
+        }
+        return ans;
+    }
 };
+
 
 void solve(){
     int n,m;
