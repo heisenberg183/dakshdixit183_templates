@@ -98,34 +98,35 @@ int ceil_div(int a, int b) {return a % b == 0 ? a / b : a / b + 1;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+
+
+// vector<int> topoDFS(){
+//     vector<int> ans;
+//     function<void(int)> dfs = [&](int v){
+//         vis[v]=1;
+//         for(auto u : adj[v]){
+//             if(!vis[u]){
+//                 dfs(u);
+//             }
+//         }
+//         ans.pb(v);
+//     };
+//     for(int i=1;i<=n;i++){
+//         if(!vis[i]){
+//             dfs(i);
+//         }
+//     }
+//     reverse(all(ans));
+//     return ans;
+// }
+
 int n,m;
 vector<vector<int>> adj;
 vector<int> vis;
 
-vector<int> topoDFS(){
-    vector<int> ans;
-    function<void(int)> dfs = [&](int v){
-        vis[v]=1;
-        for(auto u : adj[v]){
-            if(!vis[u]){
-                dfs(u);
-            }
-        }
-        ans.pb(v);
-    };
-    for(int i=1;i<=n;i++){
-        if(!vis[i]){
-            dfs(i);
-        }
-    }
-    reverse(all(ans));
-    return ans;
-}
-
 vector<int> topoBFS(){
-
-    vi indegree(n+1);
-    for(int i=1;i<=n;i++){
+    vector<int> indegree(n+1);
+    for(int i=1;i<=n;i++){ //1-Based Indexing
         for(auto it : adj[i]){
             indegree[it]++;
         }
@@ -133,18 +134,17 @@ vector<int> topoBFS(){
     //We can also use Kahn's algorithm to extract the lexicographically minimum topological sort by breaking ties lexographically.
     //Although the above code does not do this, one can simply replace the queue with a priority_queue to implement this extension.
     queue<int> q;
-    for(int i=1;i<=n;i++){
+    for(int i=1;i<=n;i++){ //1-Based Indexing
         if(indegree[i]==0){
             q.push(i);
         }
     }
-
     vector<int> ans;
     int count=0;
     while(!q.empty()){
         auto v = q.front();
         q.pop();
-        ans.pb(v);
+        ans.push_back(v);
         count++;
         for(auto it : adj[v]){
             indegree[it]--;
@@ -166,7 +166,7 @@ void solve(){
     for(int i=0;i<m;i++){
         int a,b;
         cin>>a>>b;
-        adj[a].pb(b);
+        adj[a].push_back(b);
     }
     vi ans = topoBFS();
     if(ans.size()==0){
