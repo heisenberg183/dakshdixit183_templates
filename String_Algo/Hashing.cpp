@@ -142,6 +142,18 @@ struct StringHash {
         }
         return res;
     }
+
+    //hash of 2 non consecutive substrings in string s
+    vector<int> prHash(int pi,int pj,int ri,int rj){
+        vector<int> res(K);
+        vector<int> pstring = substrHash(pi,pj);
+        vector<int> qstring = substrHash(ri,rj);
+        for(int j=0;j<K;j++){
+            int val = (pstring[j]*pw[rj-ri+1][j])%M[j];
+            res[j] = (val + qstring[j])%M[j];
+        }
+        return res;
+    }
 };
 
 void solve(){
