@@ -100,9 +100,10 @@ int ceil_rem(int a, int b) {return a%b==0 ? b : a%b;}
 int getRandomNumber(int l, int r) {return uniform_int_distribution<int>(l, r)(rng);} 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-//String Matching CSES 
+//String Matching CSES = Also Called Rabin Karp Algo
 // Template from ItzRaghav -> https://codeforces.com/contest/1968/submission/259220173
 
+//Works only with Long Long
 struct StringHash {
     int K=2;
     vector<int> Q = {271, 277};

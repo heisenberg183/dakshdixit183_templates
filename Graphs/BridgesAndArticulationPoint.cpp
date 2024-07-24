@@ -127,7 +127,7 @@ void dfs(int v,int p){
                 bridges.pb({v,u});
             }
         }
-        else if(u!=p){
+        else if(u!=p){ //Backedges
             low[v] = min(low[v],disc[u]);
         }
     }
@@ -135,9 +135,6 @@ void dfs(int v,int p){
         artPoint.insert(v);
     }
 
-    function<void(int)> f = [&](int x){
-        
-    };
 }
 
 void solve(){

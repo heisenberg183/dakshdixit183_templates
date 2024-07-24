@@ -119,7 +119,7 @@ void solve(){
 	vector<bool> visited(n);
 	vector<int> parent(n, -1);
 	pq.insert({0, 0});
-	for (int i = 0; i < n; i++) {
+	while(!pq.empty()) {
 		pair<int, int> top = *pq.begin();
 		pq.erase(top);
 		int best = top.ss;
